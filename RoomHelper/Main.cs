@@ -202,7 +202,7 @@ namespace RoomHelper
                                 if (_lastUidList.Find((uid => userId == uid)) != 0) continue;
                                 // 可能有人取消关注了
                                 if (_newFansList.Find((uid) => uid == userId) != 0) continue;
-                                if (_lastAddTime > addtime)
+                                if (_lastAddTime >= addtime)
                                 {
                                     refreshList = true;
                                     continue;
@@ -229,18 +229,21 @@ namespace RoomHelper
                         {
                             // 填充新粉丝列表
                             _lastUidList = fansList.Select((token => token["fid"].ToObject<int>())).ToList();
+                            if (fansList.Any())
+                            {
+                                _lastAddTime = fansList.ElementAt(0)["addtime"].ToObject<int>();
+                            }
                             refreshList = false;
                         }
                     }
                 }
-                catch
+                catch(Exception exception)
                 {
-                    throw;
+                    AddDM("插件错误，请查看日志");
+                    Log("已自动禁用插件，错误信息：" + exception.Message);
                 }
-
                 
-
-                // TODO Listen New Fans
+                // Listen New Fans
                 // http://space.bilibili.com/ajax/friend/GetFansList?mid=9215725&page=1&_=1498407406333
                 
             }
@@ -308,7 +311,7 @@ namespace RoomHelper
             {
                 Log("尚未连接房间");
             }
-            
+           
         }
         
         public override void Stop()
